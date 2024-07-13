@@ -4,18 +4,20 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
-public class client {
-    @Id
-    int id;
+public class Clientelle {
+
 
     String phoneNumber;
 
-    String formNumber;
+    @Id
+    int formNumber;
 
 
 }

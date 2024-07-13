@@ -1,40 +1,54 @@
 package usman.springboot.verify.vantageverification.Controllers;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import usman.springboot.verify.vantageverification.dao.IVerifyRepo;
+import usman.springboot.verify.vantageverification.model.Clientelle;
+import usman.springboot.verify.vantageverification.service.IVerifyService;
 import usman.springboot.verify.vantageverification.service.VerifyServiceImpl;
 
 @org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api")
-public class RestController {
+@CrossOrigin(origins = "http://13.50.204.230")
+public class Controller {
     @Autowired
     VerifyServiceImpl service;
 
-    @ApiOperation(value = "Send OTP to a mobile number", notes = "This endpoint sends an OTP to the provided mobile number.")
+    @Operation(summary = "Send OTP to a mobile number", description = "This endpoint sends an OTP to the provided mobile number.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OTP sent successfully"),
-            @ApiResponse(code = 400, message = "Invalid request parameters")
+            @ApiResponse(responseCode = "200", description = "OTP sent successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters")
     })
     @PostMapping("/send-otp")
-    public String sendOtp(@ApiParam(value = "Mobile number to send the OTP", required = true) @RequestParam String mobileNumber,
-                          @ApiParam(value = "Form number associated with the OTP request", required = true) @RequestParam String formNumber) {
-        return service.sendOtp(mobileNumber, formNumber);
+    public String sendOtp(@Parameter(description = "Mobile number to send the OTP", required = true) @RequestParam String mobileNumber,
+                          @Parameter(description = "Form number associated with the OTP request", required = true) @RequestParam int formNumber, HttpSession session) {
+        session.setAttribute("data", mobileNumber);
+
+        return service.sendOtp("+"+mobileNumber, formNumber);
     }
 
-    @ApiOperation(value = "Verify OTP for a mobile number", notes = "This endpoint verifies the OTP sent to a mobile number.")
+    @Operation(summary = "Verify OTP for a mobile number", description = "This endpoint verifies the OTP sent to a mobile number.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OTP verified successfully"),
-            @ApiResponse(code = 400, message = "Invalid OTP or mobile number")
+            @ApiResponse(responseCode = "200", description = "OTP verified successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid OTP or mobile number")
     })
     @PostMapping("/verify-otp")
-    public String verifyOtp(@ApiParam(value = "Mobile number to verify the OTP", required = true) @RequestParam String mobileNumber,
-                            @ApiParam(value = "OTP to be verified", required = true) @RequestParam String code) {
-        return service.verifyOtp(mobileNumber, code);
+    public String verifyOtp(@Parameter(description = "OTP to be verified", required = true) @RequestParam String code, HttpSession session) {
+        String data = (String) session.getAttribute("data");
+        return service.verifyOtp("+"+data, code);
     }
+
+    @PostMapping("save-new")
+    public String saveNew(@RequestBody Clientelle cl1){
+       return service.savenew(cl1);
+    }
+
+
+
 }
